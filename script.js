@@ -1,5 +1,5 @@
 let weather = {
-    apiKey: "7a74e8b87ba7b303e3b531d52c144d7b",
+    apiKey: "YOUR_OpenWeatherAPI",
     fetchWeather: function (city) {
       fetch(
         "https://api.openweathermap.org/data/2.5/weather?q=" +
@@ -41,7 +41,7 @@ let weather = {
 
   let geocode = {
     reverseGeocode: function(latitude, longitude) {
-        var api_key = '2b800d714f01470e82438499083f72eb';
+        var api_key = 'YOUR_GeoLocationAPI';
       
         // forward geocoding example (address to coordinate)
         // var query = 'Philipsbornstr. 2, 30165 Hannover, Germany';
