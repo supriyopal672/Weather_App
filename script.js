@@ -11,7 +11,7 @@ document.getElementById('city').addEventListener('input', function () {
         const response = await axios.get('https://api.openweathermap.org/data/2.5/forecast', {
             params: {
                 q: city,
-                appid: '54a57bc234ad752a4f59e59cd372201d',
+                appid: '7a74e8b87ba7b303e3b531d52c144d7b',
                 units: 'metric'
             },
         });
