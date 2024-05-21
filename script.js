@@ -1,87 +1,54 @@
-document.getElementById('city').addEventListener('input', function () {
-    var city = this.value;
-    getWeather(city);
+let weather = {
+    apiKey: "API KEY GOES HERE",
+    fetchWeather: function (city) {
+      fetch(
+        "https://api.openweathermap.org/data/2.5/weather?q=" +
+          city +
+          "&units=metric&appid=" +
+          this.apiKey
+      )
+        .then((response) => {
+          if (!response.ok) {
+            alert("No weather found.");
+            throw new Error("No weather found.");
+          }
+          return response.json();
+        })
+        .then((data) => this.displayWeather(data));
+    },
+    displayWeather: function (data) {
+      const { name } = data;
+      const { icon, description } = data.weather[0];
+      const { temp, humidity } = data.main;
+      const { speed } = data.wind;
+      document.querySelector(".city").innerText = "Weather in " + name;
+      document.querySelector(".icon").src =
+        "https://openweathermap.org/img/wn/" + icon + ".png";
+      document.querySelector(".description").innerText = description;
+      document.querySelector(".temp").innerText = temp + "°C";
+      document.querySelector(".humidity").innerText =
+        "Humidity: " + humidity + "%";
+      document.querySelector(".wind").innerText =
+        "Wind speed: " + speed + " km/h";
+      document.querySelector(".weather").classList.remove("loading");
+      document.body.style.backgroundImage =
+        "url('https://source.unsplash.com/1600x900/?" + name + "')";
+    },
+    search: function () {
+      this.fetchWeather(document.querySelector(".search-bar").value);
+    },
+  };
+  
+  document.querySelector(".search button").addEventListener("click", function () {
+    weather.search();
   });
   
-  async function getWeather() {
-    try {
-        var city = document.getElementById('city').value;
-        console.log('Şəhər adı:', city);
+  document
+    .querySelector(".search-bar")
+    .addEventListener("keyup", function (event) {
+      if (event.key == "Enter") {
+        weather.search();
+      }
+    });
   
-        const response = await axios.get('https://api.openweathermap.org/data/2.5/forecast', {
-            params: {
-                q: city,
-                appid: '7a74e8b87ba7b303e3b531d52c144d7b',
-                units: 'metric'
-            },
-        });
-        const currentTemperature = response.data.list[0].main.temp;
-  
-        document.querySelector('.weather-temp').textContent = Math.round(currentTemperature) + 'ºC';
-  
-        const forecastData = response.data.list;
-  
-        const dailyForecast = {};
-        forecastData.forEach((data) => {
-            const day = new Date(data.dt * 1000).toLocaleDateString('en-US', { weekday: 'long' });
-            if (!dailyForecast[day]) {
-                dailyForecast[day] = {
-                    minTemp: data.main.temp_min,
-                    maxTemp: data.main.temp_max,
-                    description: data.weather[0].description,
-                    humidity: data.main.humidity,
-                    windSpeed: data.wind.speed,
-                    icon: data.weather[0].icon,
-  
-  
-                };
-            } else {
-                dailyForecast[day].minTemp = Math.min(dailyForecast[day].minTemp, data.main.temp_min);
-                dailyForecast[day].maxTemp = Math.max(dailyForecast[day].maxTemp, data.main.temp_max);
-            }
-        });
-  
-        document.querySelector('.date-dayname').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long' });
-  
-        const date = new Date().toUTCString();
-        const extractedDateTime = date.slice(5, 16);
-        document.querySelector('.date-day').textContent = extractedDateTime.toLocaleString('en-US');
-  
-        const currentWeatherIconCode = dailyForecast[new Date().toLocaleDateString('en-US', { weekday: 'long' })].icon;
-        const weatherIconElement = document.querySelector('.weather-icon');
-        weatherIconElement.innerHTML = getWeatherIcon(currentWeatherIconCode);
-  
-        document.querySelector('.location').textContent = response.data.city.name;
-        document.querySelector('.weather-desc').textContent = dailyForecast[new Date().toLocaleDateString('en-US', { weekday: 'long' })].description.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-  
-        document.querySelector('.humidity .value').textContent = dailyForecast[new Date().toLocaleDateString('en-US', { weekday: 'long' })].humidity + ' %';
-        document.querySelector('.wind .value').textContent = dailyForecast[new Date().toLocaleDateString('en-US', { weekday: 'long' })].windSpeed + ' m/s';
-  
-  
-        const dayElements = document.querySelectorAll('.day-name');
-        const tempElements = document.querySelectorAll('.day-temp');
-        const iconElements = document.querySelectorAll('.day-icon');
-  
-        dayElements.forEach((dayElement, index) => {
-            const day = Object.keys(dailyForecast)[index];
-            const data = dailyForecast[day];
-            dayElement.textContent = day;
-            tempElements[index].textContent = `${Math.round(data.minTemp)}º / ${Math.round(data.maxTemp)}º`;
-            iconElements[index].innerHTML = getWeatherIcon(data.icon);
-        });
-  
-    } catch (error) {
-        console.error('Məlumat alınarkən səhv baş verdi:', error.message);
-    }
-  }
-  
-  function getWeatherIcon(iconCode) {
-    const iconBaseUrl = 'https://openweathermap.org/img/wn/';
-    const iconSize = '@2x.png';
-    return `<img src="${iconBaseUrl}${iconCode}${iconSize}" alt="Weather Icon">`;
-  }
-  
-  document.addEventListener("DOMContentLoaded", function () {
-    getWeather();
-    setInterval(getWeather, 900000);
-  });
+  weather.fetchWeather("Denver");
